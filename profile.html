@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Vinodhkumar Rajendran — Senior Business Analyst, banking and fintech professional.">
+<title>Vinodhkumar Rajendran — Banking × Fintech</title>
+<style>
+  :root{
+    --bg:#f5f5f7;
+    --surface:rgba(255,255,255,.78);
+    --card:#fff;
+    --text:#1d1d1f;
+    --muted:#6e6e73;
+    --line:rgba(0,0,0,.08);
+    --blue:#0071e3;
+    --blue-soft:#eaf4ff;
+    --dark:#161617;
+    --max:1180px;
+    --radius:28px;
+    --shadow:0 20px 60px rgba(0,0,0,.07);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Arial,sans-serif;
+    color:var(--text);
+    background:var(--bg);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none}
+  .nav{
+    position:fixed;top:0;left:0;right:0;z-index:20;
+    background:rgba(245,245,247,.78);
+    backdrop-filter:saturate(180%) blur(20px);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);
+    border-bottom:1px solid rgba(0,0,0,.06);
+  }
+  .nav-inner{
+    max-width:var(--max);margin:auto;height:54px;padding:0 24px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .brand{font-size:15px;font-weight:600;letter-spacing:-.2px}
+  .nav-links{display:flex;gap:26px;font-size:13px;color:#4b4b4f}
+  .nav-links a:hover{color:#000}
+  .menu{display:none;border:0;background:none;font-size:24px}
+  main{overflow:hidden}
+  .hero{
+    min-height:760px;
+    display:flex;align-items:center;
+    padding:140px 24px 90px;
+    background:
+      radial-gradient(circle at 76% 28%,rgba(0,113,227,.13),transparent 30%),
+      radial-gradient(circle at 20% 72%,rgba(88,86,214,.08),transparent 26%),
+      var(--bg);
+  }
+  .hero-inner{max-width:var(--max);width:100%;margin:auto}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    color:var(--blue);font-weight:600;font-size:15px;margin-bottom:20px;
+  }
+  .dot{width:7px;height:7px;background:var(--blue);border-radius:50%}
+  h1{
+    font-size:clamp(56px,8vw,104px);
+    line-height:.96;letter-spacing:-.065em;
+    max-width:900px;margin:0 0 28px;font-weight:700;
+  }
+  .gradient{
+    background:linear-gradient(100deg,#1d1d1f 20%,#0071e3 80%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero-copy{
+    max-width:720px;font-size:clamp(20px,2.2vw,28px);
+    line-height:1.25;letter-spacing:-.025em;color:#424245;margin-bottom:38px;
+  }
+  .actions{display:flex;gap:14px;flex-wrap:wrap}
+  .btn{
+    padding:13px 21px;border-radius:999px;font-size:15px;font-weight:600;
+    transition:.2s ease;display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-primary{background:var(--blue);color:white}
+  .btn-primary:hover{background:#0077ed;transform:translateY(-1px)}
+  .btn-secondary{background:rgba(0,0,0,.06);color:var(--text)}
+  .btn-secondary:hover{background:rgba(0,0,0,.1)}
+  .section{padding:110px 24px}
+  .section-inner{max-width:var(--max);margin:auto}
+  .section-kicker{font-size:14px;color:var(--blue);font-weight:600;margin-bottom:10px}
+  h2{
+    font-size:clamp(40px,5vw,64px);line-height:1.03;
+    letter-spacing:-.05em;margin:0 0 18px;
+  }
+  .lead{font-size:21px;color:var(--muted);max-width:760px}
+  .intro-grid{
+    margin-top:55px;display:grid;grid-template-columns:1.5fr .8fr;gap:22px;
+  }
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:34px;box-shadow:var(--shadow);
+  }
+  .card p{margin:0;color:#424245;font-size:17px}
+  .quote-card{
+    background:var(--dark);color:white;display:flex;flex-direction:column;justify-content:space-between;
+  }
+  .quote-card p{color:#e5e5e7;font-size:25px;line-height:1.2;letter-spacing:-.025em}
+  .quote-mark{font-size:56px;line-height:.7;color:#6e6e73}
+  .stats{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:14px;
+  }
+  .stat{padding:28px;background:#fff;border:1px solid var(--line);border-radius:22px}
+  .stat strong{display:block;font-size:30px;letter-spacing:-.04em;margin-bottom:5px}
+  .stat span{font-size:13px;color:var(--muted)}
+  .dark-section{background:#1d1d1f;color:white}
+  .dark-section .lead{color:#a1a1a6}
+  .timeline{margin-top:60px;display:grid;gap:18px}
+  .role{
+    display:grid;grid-template-columns:220px 1fr;gap:34px;
+    padding:34px 0;border-top:1px solid rgba(255,255,255,.12);
+  }
+  .role:last-child{border-bottom:1px solid rgba(255,255,255,.12)}
+  .role-date{color:#a1a1a6;font-size:14px}
+  .role h3{font-size:28px;letter-spacing:-.03em;margin:0 0 4px}
+  .company{color:#a1a1a6;margin-bottom:18px}
+  .role ul{padding-left:20px;margin:0;color:#d1d1d3}
+  .role li{margin:8px 0}
+  .pill-row{display:flex;flex-wrap:wrap;gap:9px;margin-top:28px}
+  .pill{
+    padding:9px 13px;border-radius:999px;background:var(--blue-soft);
+    color:#075fae;font-size:13px;font-weight:600;
+  }
+  .expertise{
+    margin-top:52px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;
+  }
+  .expertise .card{box-shadow:none;padding:28px}
+  .icon{
+    width:42px;height:42px;border-radius:13px;background:#f1f1f3;
+    display:grid;place-items:center;font-size:19px;margin-bottom:22px;
+  }
+  .expertise h3{font-size:20px;letter-spacing:-.025em;margin:0 0 9px}
+  .expertise p{font-size:14px;color:var(--muted)}
+  .impact{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:52px;
+  }
+  .impact .card{min-height:205px}
+  .number{font-size:46px;letter-spacing:-.05em;font-weight:700;margin-bottom:8px}
+  .impact h3{margin:0 0 7px;font-size:19px}
+  .impact p{font-size:14px;color:var(--muted)}
+  .credentials{
+    display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:52px;
+  }
+  .credential{
+    display:flex;justify-content:space-between;align-items:center;gap:20px;
+    padding:25px 0;border-bottom:1px solid var(--line)
+  }
+  .credential strong{font-size:16px}
+  .credential span{font-size:13px;color:var(--muted);text-align:right}
+  .education{
+    margin-top:50px;background:linear-gradient(135deg,#fff,#eef5ff);
+    border-radius:var(--radius);padding:38px;border:1px solid var(--line);
+  }
+  .education h3{font-size:25px;margin:0 0 6px}
+  .education p{margin:0;color:var(--muted)}
+  .contact{
+    text-align:center;padding:130px 24px 120px;
+    background:#fff;
+  }
+  .contact h2{max-width:800px;margin:0 auto 18px}
+  .contact p{font-size:19px;color:var(--muted);max-width:600px;margin:0 auto 30px}
+  footer{
+    background:#f5f5f7;border-top:1px solid var(--line);
+    padding:28px 24px;color:var(--muted);font-size:12px;
+  }
+  .footer-inner{max-width:var(--max);margin:auto;display:flex;justify-content:space-between;gap:20px}
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.visible{opacity:1;transform:none}
+  @media(max-width:850px){
+    .nav-links{display:none}.menu{display:block}
+    .hero{min-height:680px;padding-top:120px}
+    .intro-grid,.credentials{grid-template-columns:1fr}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .expertise{grid-template-columns:repeat(2,1fr)}
+    .role{grid-template-columns:1fr;gap:8px}
+    .impact{grid-template-columns:1fr}
+  }
+  @media(max-width:560px){
+    .nav-inner{padding:0 18px}.hero,.section,.contact{padding-left:18px;padding-right:18px}
+    .hero{padding-top:105px}
+    h1{font-size:54px}
+    .hero-copy{font-size:21px}
+    .section{padding-top:78px;padding-bottom:78px}
+    .stats,.expertise{grid-template-columns:1fr}
+    .card{padding:26px;border-radius:22px}
+    .footer-inner{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#top">Vinodhkumar Rajendran</a>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#experience">Experience</a>
+      <a href="#expertise">Expertise</a>
+      <a href="#credentials">Credentials</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <button class="menu" aria-label="Open menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
+  </div>
+</nav>
+
+<main id="top">
+  <section class="hero">
+    <div class="hero-inner reveal">
+      <div class="eyebrow"><span class="dot"></span> Senior Business Analyst · Banking × Fintech</div>
+      <h1>Turning banking<br><span class="gradient">complexity into clarity.</span></h1>
+      <p class="hero-copy">
+        A techno-functional banking professional with hands-on experience across digital banking,
+        trade finance, foreign exchange, SME credit and retail assets.
+      </p>
+      <div class="actions">
+        <a class="btn btn-primary" href="#experience">Explore my experience <span>↓</span></a>
+        <a class="btn btn-secondary" href="mailto:vinodhr812@gmail.com">Let's connect</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="about">
+    <div class="section-inner">
+      <div class="section-kicker">01 — ABOUT</div>
+      <h2>Banking depth.<br>Product thinking.</h2>
+      <div class="intro-grid reveal">
+        <div class="card">
+          <p>
+            I am a Senior Business Analyst at i-exceed Technology Solutions, working at the intersection
+            of business needs, technology and digital banking solutions. My experience spans both sides of
+            the banking ecosystem: working directly within State Bank of India and later helping design and
+            deliver technology solutions for financial institutions.
+          </p>
+          <div class="pill-row">
+            <span class="pill">Digital Banking</span>
+            <span class="pill">Trade Finance</span>
+            <span class="pill">Foreign Exchange</span>
+            <span class="pill">SME Credit</span>
+            <span class="pill">Business Analysis</span>
+          </div>
+        </div>
+        <div class="card quote-card">
+          <div class="quote-mark">“</div>
+          <p>Enable the business to articulate its needs, the rationale for change, and solutions that deliver value.</p>
+          <small style="color:#8e8e93">My techno-functional approach</small>
+        </div>
+      </div>
+      <div class="stats reveal">
+        <div class="stat"><strong>11+</strong><span>Years across banking & fintech</span></div>
+        <div class="stat"><strong>8+ yrs</strong><span>State Bank of India</span></div>
+        <div class="stat"><strong>4+ yrs</strong><span>Trade finance & FX focus</span></div>
+        <div class="stat"><strong>PSPO I</strong><span>Professional Scrum Product Owner</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section dark-section" id="experience">
+    <div class="section-inner">
+      <div class="section-kicker">02 — EXPERIENCE</div>
+      <h2>From the branch<br>to the product.</h2>
+      <p class="lead">A career built by moving closer to the problem — and then closer to the solution.</p>
+
+      <div class="timeline">
+        <article class="role reveal">
+          <div class="role-date">Apr 2024 — Present<br>Bengaluru, India</div>
+          <div>
+            <h3>Senior Business Analyst</h3>
+            <div class="company">i-exceed Technology Solutions</div>
+            <ul>
+              <li>Work in a techno-functional role translating business needs into digital banking solutions.</li>
+              <li>Apply banking domain knowledge across trade finance, foreign exchange, SME credit and digital banking products.</li>
+              <li>Experience with digital banking platforms and products including SBI YONO, YONO e-TRADE/e-FOREX, Mercury FX, China Systems Trade Finance, LLMS and LOS.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="role reveal">
+          <div class="role-date">Jul 2022 — Apr 2024<br>Chennai, India</div>
+          <div>
+            <h3>Trade Finance Officer</h3>
+            <div class="company">State Bank of India</div>
+            <ul>
+              <li>Achieved ₹17 billion forex turnover against a ₹13 billion branch budget.</li>
+              <li>Delivered ₹3 billion YTD growth in Trade Based Receivables Discounting System (TReDS).</li>
+              <li>Achieved 100% application processing through a digital platform for trade finance services.</li>
+              <li>Coordinated the RBI FEMA audit, contributing to an AA grade and score of 904/1000.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="role reveal">
+          <div class="role-date">Aug 2021 — Jun 2022<br>Chennai, India</div>
+          <div>
+            <h3>Credit Manager</h3>
+            <div class="company">State Bank of India</div>
+            <ul>
+              <li>Supported ₹1 billion in housing-loan disbursement at the Retail Assets Credit Centre.</li>
+              <li>Facilitated settlement of more than 30 stressed accounts through Lok Adalats.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="role reveal">
+          <div class="role-date">Aug 2020 — Jul 2021<br>Chennai, India</div>
+          <div>
+            <h3>Relationship Manager for SME</h3>
+            <div class="company">State Bank of India</div>
+            <ul>
+              <li>Managed 30 SME units with aggregate exposure of ₹400 million.</li>
+              <li>Grew the SME portfolio 10–13% year over year, with emphasis on supply-chain financing.</li>
+              <li>Supported corporate clients with COVID financial stimulus measures and emergency credit.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="role reveal">
+          <div class="role-date">Oct 2017 — Jul 2020<br>Chennai, India</div>
+          <div>
+            <h3>Commercial Loan Processor</h3>
+            <div class="company">State Bank of India</div>
+            <ul>
+              <li>Reviewed loan applications and worked directly with clients to understand financial requirements.</li>
+              <li>Onboarded 100 clients as part of an MSME campaign.</li>
+              <li>Managed a credit portfolio of 180 Micro and Small Enterprise units with ₹200 million aggregate exposure.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="role reveal">
+          <div class="role-date">Jun 2015 — Sep 2017<br>India</div>
+          <div>
+            <h3>Probationary Officer</h3>
+            <div class="company">State Bank of India</div>
+            <ul>
+              <li>Worked across rural, semi-urban and urban branches covering deposits, advances, forex and agricultural products.</li>
+              <li>Served across credit, branch management, NPA management and accounting functions.</li>
+              <li>Led branch operations during demonetization, including cash planning and monitoring.</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="expertise">
+    <div class="section-inner">
+      <div class="section-kicker">03 — EXPERTISE</div>
+      <h2>Where banking<br>meets technology.</h2>
+      <p class="lead">Domain knowledge that helps connect customer problems, business objectives and technology delivery.</p>
+      <div class="expertise">
+        <div class="card reveal">
+          <div class="icon">↗</div>
+          <h3>Digital Banking</h3>
+          <p>Internet banking and digital banking products, including retail and corporate journeys.</p>
+        </div>
+        <div class="card reveal">
+          <div class="icon">⇄</div>
+          <h3>Trade Finance</h3>
+          <p>Trade services, receivables discounting and technology platforms supporting trade workflows.</p>
+        </div>
+        <div class="card reveal">
+          <div class="icon">◎</div>
+          <h3>Foreign Exchange</h3>
+          <p>Forex operations, customer transactions and digital solutions including e-FOREX and Mercury FX.</p>
+        </div>
+        <div class="card reveal">
+          <div class="icon">⌁</div>
+          <h3>Credit & Lending</h3>
+          <p>Retail assets, SME credit, loan processing and lifecycle systems from a banking-user perspective.</p>
+        </div>
+      </div>
+      <div class="impact">
+        <div class="card reveal">
+          <div class="number">₹17B</div>
+          <h3>Forex turnover milestone</h3>
+          <p>Achieved against a ₹13B branch budget during the Trade Finance Officer tenure.</p>
+        </div>
+        <div class="card reveal">
+          <div class="number">₹3B</div>
+          <h3>TReDS growth</h3>
+          <p>YTD growth in Trade Based Receivables Discounting System, placing the branch first among seven designated branches.</p>
+        </div>
+        <div class="card reveal">
+          <div class="number">₹1B</div>
+          <h3>Housing-loan disbursement</h3>
+          <p>Milestone achieved as credit support officer at the Retail Assets Credit Centre.</p>
+        </div>
+        <div class="card reveal">
+          <div class="number">AA</div>
+          <h3>RBI FEMA audit</h3>
+          <p>Branch achieved AA grade with a score of 904/1000 in the FEMA audit.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="credentials" style="background:#fafafa">
+    <div class="section-inner">
+      <div class="section-kicker">04 — CREDENTIALS</div>
+      <h2>Built on domain<br>depth and learning.</h2>
+      <div class="credentials">
+        <div class="card">
+          <div class="credential"><strong>Professional Scrum Product Owner™ I</strong><span>PSPO I</span></div>
+          <div class="credential"><strong>Moody's Certification in Commercial Credit</strong><span>Commercial Credit</span></div>
+          <div class="credential"><strong>Foreign Exchange Operations</strong><span>IIBF</span></div>
+          <div class="credential"><strong>Junior Associate of Indian Institute of Banking</strong><span>Banking</span></div>
+          <div class="credential"><strong>Forex Basics</strong><span>Certification</span></div>
+        </div>
+        <div>
+          <div class="education reveal">
+            <div class="section-kicker">EDUCATION</div>
+            <h3>Bachelor of Engineering</h3>
+            <p>Electrical and Electronics Engineering</p>
+            <p style="margin-top:8px">Valliammai Engineering College · 2009 — 2013</p>
+          </div>
+          <div class="card reveal" style="margin-top:18px;box-shadow:none">
+            <h3 style="margin:0 0 12px;font-size:21px">Core skills</h3>
+            <div class="pill-row" style="margin-top:0">
+              <span class="pill">Agile</span><span class="pill">Waterfall</span>
+              <span class="pill">Business Analysis</span><span class="pill">Internet Banking</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <div class="section-inner reveal">
+      <div class="section-kicker">05 — CONTACT</div>
+      <h2>Have a banking problem<br>worth solving?</h2>
+      <p>I'm interested in conversations around digital banking, fintech products, trade finance and technology-led transformation.</p>
+      <div class="actions" style="justify-content:center">
+        <a class="btn btn-primary" href="mailto:vinodhr812@gmail.com">vinodhr812@gmail.com ↗</a>
+        <a class="btn btn-secondary" href="https://www.linkedin.com/in/vinodhkumar-rajendran-23645a60" target="_blank" rel="noopener">LinkedIn ↗</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <span>© 2026 Vinodhkumar Rajendran</span>
+    <span>Banking · Fintech · Business Analysis</span>
+  </div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, {threshold: .12});
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
