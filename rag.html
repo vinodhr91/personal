@@ -1,0 +1,1488 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG Simulator — Understand Retrieval Augmented Generation</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    :root {
+        --bg: #f5f7fb;
+        --card: rgba(255,255,255,0.88);
+        --text: #172033;
+        --muted: #697386;
+        --border: #e4e8ef;
+        --accent: #635bff;
+        --accent-soft: #eeedff;
+        --green: #0d9f6e;
+        --green-soft: #e8f8f2;
+        --orange: #e8890c;
+        --orange-soft: #fff5e5;
+        --red: #d94b4b;
+        --shadow: 0 18px 50px rgba(20,30,55,0.08);
+        --radius: 20px;
+    }
+
+    body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont,
+                     "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: var(--text);
+        background:
+            radial-gradient(circle at 10% 0%, #ebeaff 0, transparent 28%),
+            radial-gradient(circle at 90% 10%, #e5f8f2 0, transparent 25%),
+            var(--bg);
+        min-height: 100vh;
+    }
+
+    .app {
+        max-width: 1400px;
+        margin: auto;
+        padding: 34px 24px 70px;
+    }
+
+    /* Header */
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 12px;
+        background: rgba(99,91,255,0.09);
+        color: var(--accent);
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+
+    h1 {
+        margin: 14px 0 8px;
+        font-size: clamp(32px, 4vw, 54px);
+        letter-spacing: -0.045em;
+        line-height: 1;
+    }
+
+    .subtitle {
+        margin: 0;
+        max-width: 760px;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    .reset-btn {
+        border: 1px solid var(--border);
+        background: white;
+        color: var(--text);
+        border-radius: 12px;
+        padding: 11px 16px;
+        font-weight: 650;
+        cursor: pointer;
+        box-shadow: 0 5px 18px rgba(0,0,0,.04);
+    }
+
+    .reset-btn:hover {
+        border-color: #cbd0da;
+        transform: translateY(-1px);
+    }
+
+    /* Pipeline */
+    .pipeline {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 10px;
+        margin-bottom: 26px;
+    }
+
+    .step {
+        position: relative;
+        padding: 15px 12px;
+        background: rgba(255,255,255,.75);
+        border: 1px solid var(--border);
+        border-radius: 15px;
+        min-height: 80px;
+        cursor: pointer;
+        transition: .25s ease;
+    }
+
+    .step:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(30,40,80,.07);
+    }
+
+    .step.active {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+        box-shadow: 0 0 0 3px rgba(99,91,255,.08);
+    }
+
+    .step-num {
+        font-size: 11px;
+        color: var(--muted);
+        font-weight: 700;
+    }
+
+    .step-name {
+        margin-top: 7px;
+        font-size: 13px;
+        font-weight: 750;
+    }
+
+    /* Main grid */
+    .grid {
+        display: grid;
+        grid-template-columns: 1.1fr 1.6fr;
+        gap: 20px;
+    }
+
+    .card {
+        background: var(--card);
+        backdrop-filter: blur(14px);
+        border: 1px solid rgba(255,255,255,.8);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+    }
+
+    .card-header {
+        padding: 20px 22px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .card-title {
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .card-description {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 5px;
+        line-height: 1.5;
+    }
+
+    .card-body {
+        padding: 20px 22px;
+    }
+
+    /* Query panel */
+    textarea {
+        width: 100%;
+        min-height: 100px;
+        resize: vertical;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 15px;
+        font: inherit;
+        font-size: 14px;
+        outline: none;
+        background: #fbfcfe;
+        color: var(--text);
+        transition: .2s;
+    }
+
+    textarea:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(99,91,255,.08);
+    }
+
+    .run-btn {
+        width: 100%;
+        border: 0;
+        border-radius: 13px;
+        padding: 14px;
+        margin-top: 12px;
+        background: var(--accent);
+        color: white;
+        font-size: 14px;
+        font-weight: 750;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+    .run-btn:hover {
+        filter: brightness(.96);
+        transform: translateY(-1px);
+    }
+
+    .controls {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    .control label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--muted);
+        margin-bottom: 8px;
+    }
+
+    input[type="range"] {
+        width: 100%;
+        accent-color: var(--accent);
+    }
+
+    select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: white;
+    }
+
+    .question-example {
+        display: inline-flex;
+        margin-top: 10px;
+        padding: 7px 10px;
+        border: 1px solid var(--border);
+        background: white;
+        border-radius: 9px;
+        color: var(--muted);
+        font-size: 11px;
+        cursor: pointer;
+    }
+
+    .question-example:hover {
+        color: var(--accent);
+        border-color: #bbb8ff;
+    }
+
+    /* Process */
+    .process {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .process-item {
+        display: grid;
+        grid-template-columns: 38px 1fr auto;
+        align-items: center;
+        gap: 12px;
+        padding: 14px;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: rgba(255,255,255,.65);
+        opacity: .48;
+        transform: translateY(4px);
+        transition: .35s;
+    }
+
+    .process-item.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .process-icon {
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        border-radius: 11px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 17px;
+    }
+
+    .process-main {
+        font-size: 13px;
+        font-weight: 750;
+    }
+
+    .process-sub {
+        margin-top: 3px;
+        font-size: 11px;
+        color: var(--muted);
+    }
+
+    .process-value {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 11px;
+        color: var(--muted);
+    }
+
+    /* Results */
+    .section {
+        margin-top: 20px;
+    }
+
+    .section-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .section-heading h2 {
+        margin: 0;
+        font-size: 17px;
+        letter-spacing: -.02em;
+    }
+
+    .badge {
+        font-size: 11px;
+        padding: 5px 8px;
+        border-radius: 999px;
+        background: var(--green-soft);
+        color: var(--green);
+        font-weight: 750;
+    }
+
+    .chunk-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .chunk {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 15px;
+        background: white;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+    .chunk:hover {
+        border-color: #c9c6ff;
+    }
+
+    .chunk.top {
+        border-left: 4px solid var(--accent);
+    }
+
+    .chunk-meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+
+    .chunk-name {
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .score {
+        font-family: ui-monospace, monospace;
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--green);
+    }
+
+    .chunk-text {
+        font-size: 12px;
+        line-height: 1.55;
+        color: #4f596c;
+    }
+
+    .why {
+        display: none;
+        margin-top: 10px;
+        padding: 10px;
+        background: #f7f8fc;
+        border-radius: 9px;
+        font-size: 11px;
+        line-height: 1.5;
+        color: var(--muted);
+    }
+
+    .chunk.open .why {
+        display: block;
+    }
+
+    /* Vector */
+    .vector {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .vector span {
+        padding: 5px 7px;
+        background: #f0f1f6;
+        border-radius: 6px;
+        font-family: ui-monospace, monospace;
+        font-size: 10px;
+        color: #596274;
+    }
+
+    /* Grounded context */
+    .context-box {
+        border: 1px solid #cfece1;
+        background: linear-gradient(180deg, #f8fffc, #effaf6);
+        border-radius: 15px;
+        padding: 16px;
+    }
+
+    .grounded-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--green);
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+
+    .grounded-label::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        background: var(--green);
+        border-radius: 50%;
+    }
+
+    .context-content {
+        margin-top: 12px;
+        font-size: 13px;
+        line-height: 1.65;
+        color: #344054;
+    }
+
+    .source {
+        display: inline-block;
+        margin-top: 9px;
+        margin-right: 5px;
+        padding: 5px 8px;
+        border-radius: 7px;
+        background: white;
+        border: 1px solid #d7e9e2;
+        color: #537268;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    /* Answer */
+    .answer {
+        padding: 20px;
+        border-radius: 16px;
+        background: #171b2b;
+        color: white;
+        box-shadow: 0 14px 35px rgba(20,24,42,.18);
+    }
+
+    .answer-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        color: #aeb5ca;
+        font-weight: 800;
+    }
+
+    .answer-text {
+        margin-top: 12px;
+        font-size: 15px;
+        line-height: 1.7;
+    }
+
+    .citation {
+        margin-top: 15px;
+        font-size: 10px;
+        color: #aeb5ca;
+    }
+
+    /* Knowledge base */
+    .doc-list {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+    }
+
+    .doc {
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: white;
+    }
+
+    .doc-title {
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    .doc-info {
+        margin-top: 4px;
+        font-size: 10px;
+        color: var(--muted);
+    }
+
+    /* Explanation */
+    .concept {
+        margin-top: 20px;
+        padding: 20px;
+        background: rgba(255,255,255,.75);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+    }
+
+    .concept h3 {
+        margin: 0 0 8px;
+        font-size: 16px;
+    }
+
+    .concept p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.65;
+    }
+
+    .highlight {
+        color: var(--accent);
+        font-weight: 750;
+    }
+
+    @media(max-width: 1000px) {
+        .pipeline {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media(max-width: 650px) {
+        .app {
+            padding: 22px 14px 50px;
+        }
+
+        .header {
+            flex-direction: column;
+        }
+
+        .pipeline {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .controls {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- HEADER -->
+    <header class="header">
+        <div>
+            <div class="eyebrow">Interactive Learning Lab</div>
+            <h1>RAG Simulator</h1>
+            <p class="subtitle">
+                Explore how documents become searchable knowledge, how relevant
+                chunks are retrieved, and how an LLM uses grounded context to
+                generate an answer.
+            </p>
+        </div>
+
+        <button class="reset-btn" onclick="resetSimulator()">Reset</button>
+    </header>
+
+
+    <!-- PIPELINE -->
+    <div class="pipeline">
+
+        <div class="step active" onclick="focusSection('knowledge')">
+            <div class="step-num">01</div>
+            <div class="step-name">Knowledge Base</div>
+        </div>
+
+        <div class="step" onclick="focusSection('chunking')">
+            <div class="step-num">02</div>
+            <div class="step-name">Chunking</div>
+        </div>
+
+        <div class="step" onclick="focusSection('embedding')">
+            <div class="step-num">03</div>
+            <div class="step-name">Embeddings</div>
+        </div>
+
+        <div class="step" onclick="focusSection('vector')">
+            <div class="step-num">04</div>
+            <div class="step-name">Vector DB</div>
+        </div>
+
+        <div class="step" onclick="focusSection('retrieval')">
+            <div class="step-num">05</div>
+            <div class="step-name">Retrieval</div>
+        </div>
+
+        <div class="step" onclick="focusSection('grounding')">
+            <div class="step-num">06</div>
+            <div class="step-name">Grounding</div>
+        </div>
+
+        <div class="step" onclick="focusSection('generation')">
+            <div class="step-num">07</div>
+            <div class="step-name">LLM Answer</div>
+        </div>
+
+    </div>
+
+
+    <div class="grid">
+
+        <!-- LEFT -->
+        <div>
+
+            <!-- KNOWLEDGE BASE -->
+            <section class="card" id="knowledge">
+
+                <div class="card-header">
+                    <div class="card-title">① Knowledge Base</div>
+                    <div class="card-description">
+                        Documents that your RAG system knows about.
+                    </div>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="doc-list">
+
+                        <div class="doc">
+                            <div class="doc-title">
+                                CIB Functional Specification v3.2
+                            </div>
+                            <div class="doc-info">
+                                24 pages · Corporate User · Payments
+                            </div>
+                        </div>
+
+                        <div class="doc">
+                            <div class="doc-title">
+                                Corporate Banking Product Manual
+                            </div>
+                            <div class="doc-info">
+                                38 pages · NEFT · RTGS · IMPS
+                            </div>
+                        </div>
+
+                        <div class="doc">
+                            <div class="doc-title">
+                                Transaction Approval Matrix
+                            </div>
+                            <div class="doc-info">
+                                12 pages · Limits · Approval hierarchy
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- QUERY -->
+            <section class="card section">
+
+                <div class="card-header">
+                    <div class="card-title">Ask the RAG System</div>
+                    <div class="card-description">
+                        Your question becomes the input to the retrieval pipeline.
+                    </div>
+                </div>
+
+                <div class="card-body">
+
+                    <textarea id="query">What is the NEFT transaction limit for a corporate user?</textarea>
+
+                    <button class="question-example" onclick="setQuery('What is the approval process for high value transactions?')">
+                        Try: Approval process
+                    </button>
+
+                    <button class="question-example" onclick="setQuery('What can a Corporate Admin do?')">
+                        Try: Corporate Admin
+                    </button>
+
+                    <button class="run-btn" onclick="runRAG()">
+                        Run RAG Pipeline →
+                    </button>
+
+                    <div class="controls">
+
+                        <div class="control">
+                            <label>
+                                <span>Top-K chunks</span>
+                                <span id="kValue">3</span>
+                            </label>
+
+                            <input
+                                type="range"
+                                id="topK"
+                                min="1"
+                                max="5"
+                                value="3"
+                                oninput="document.getElementById('kValue').textContent=this.value"
+                            >
+                        </div>
+
+                        <div class="control">
+                            <label>
+                                <span>Similarity threshold</span>
+                                <span id="thresholdValue">0.45</span>
+                            </label>
+
+                            <input
+                                type="range"
+                                id="threshold"
+                                min="0.2"
+                                max="0.9"
+                                value="0.45"
+                                step="0.05"
+                                oninput="document.getElementById('thresholdValue').textContent=this.value"
+                            >
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- PROCESS -->
+            <section class="card section">
+
+                <div class="card-header">
+                    <div class="card-title">Pipeline Execution</div>
+                    <div class="card-description">
+                        Watch what happens after you submit the query.
+                    </div>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="process">
+
+                        <div class="process-item" id="p1">
+                            <div class="process-icon">⌕</div>
+                            <div>
+                                <div class="process-main">Query received</div>
+                                <div class="process-sub">
+                                    The user question enters the RAG pipeline.
+                                </div>
+                            </div>
+                            <div class="process-value">INPUT</div>
+                        </div>
+
+                        <div class="process-item" id="p2">
+                            <div class="process-icon">✦</div>
+                            <div>
+                                <div class="process-main">Query embedding created</div>
+                                <div class="process-sub">
+                                    The question is represented as a vector.
+                                </div>
+                            </div>
+                            <div class="process-value">VECTOR</div>
+                        </div>
+
+                        <div class="process-item" id="p3">
+                            <div class="process-icon">⌁</div>
+                            <div>
+                                <div class="process-main">Similarity search</div>
+                                <div class="process-sub">
+                                    The query vector is compared with stored vectors.
+                                </div>
+                            </div>
+                            <div class="process-value">SEARCH</div>
+                        </div>
+
+                        <div class="process-item" id="p4">
+                            <div class="process-icon">◆</div>
+                            <div>
+                                <div class="process-main">Top-K chunks retrieved</div>
+                                <div class="process-sub">
+                                    The most relevant knowledge is selected.
+                                </div>
+                            </div>
+                            <div class="process-value">TOP-K</div>
+                        </div>
+
+                        <div class="process-item" id="p5">
+                            <div class="process-icon">◎</div>
+                            <div>
+                                <div class="process-main">Grounded context constructed</div>
+                                <div class="process-sub">
+                                    Retrieved evidence is combined with the query.
+                                </div>
+                            </div>
+                            <div class="process-value">CONTEXT</div>
+                        </div>
+
+                        <div class="process-item" id="p6">
+                            <div class="process-icon">AI</div>
+                            <div>
+                                <div class="process-main">LLM generates answer</div>
+                                <div class="process-sub">
+                                    The model uses the supplied context to answer.
+                                </div>
+                            </div>
+                            <div class="process-value">GENERATE</div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+
+
+        <!-- RIGHT -->
+        <div>
+
+            <!-- QUERY VECTOR -->
+            <section class="card" id="embedding">
+
+                <div class="card-header">
+                    <div class="card-title">③ Query Embedding</div>
+                    <div class="card-description">
+                        A simplified visualization of the numerical representation
+                        of your query.
+                    </div>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="vector" id="queryVector">
+                        <span>0.21</span>
+                        <span>-0.43</span>
+                        <span>0.77</span>
+                        <span>0.18</span>
+                        <span>-0.12</span>
+                        <span>0.64</span>
+                        <span>0.31</span>
+                        <span>...</span>
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- RETRIEVAL -->
+            <section class="card section" id="retrieval">
+
+                <div class="card-header">
+                    <div class="card-title">
+                        ⑤ Retrieved Chunks
+                    </div>
+
+                    <div class="card-description">
+                        Click a chunk to understand why it was retrieved.
+                    </div>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="chunk-list" id="chunkList">
+
+                        <div class="chunk top" onclick="toggleChunk(this)">
+                            <div class="chunk-meta">
+                                <div class="chunk-name">
+                                    Transaction Limits · Chunk 12
+                                </div>
+                                <div class="score">0.94</div>
+                            </div>
+
+                            <div class="chunk-text">
+                                Corporate users can initiate NEFT transactions
+                                up to ₹10 lakh. Transactions above ₹10 lakh
+                                require approval from an authorized approver.
+                            </div>
+
+                            <div class="why">
+                                <strong>Why retrieved?</strong><br>
+                                High semantic similarity with concepts such as
+                                "NEFT", "corporate user", "transaction limit"
+                                and "₹10 lakh".
+                            </div>
+                        </div>
+
+
+                        <div class="chunk top" onclick="toggleChunk(this)">
+                            <div class="chunk-meta">
+                                <div class="chunk-name">
+                                    Approval Matrix · Chunk 07
+                                </div>
+                                <div class="score">0.81</div>
+                            </div>
+
+                            <div class="chunk-text">
+                                Transactions exceeding the configured corporate
+                                user limit are routed to the applicable approval
+                                workflow.
+                            </div>
+
+                            <div class="why">
+                                <strong>Why retrieved?</strong><br>
+                                Shares semantic concepts around transaction
+                                limits and approval workflows.
+                            </div>
+                        </div>
+
+
+                        <div class="chunk top" onclick="toggleChunk(this)">
+                            <div class="chunk-meta">
+                                <div class="chunk-name">
+                                    Payment Module · Chunk 21
+                                </div>
+                                <div class="score">0.67</div>
+                            </div>
+
+                            <div class="chunk-text">
+                                NEFT transactions are available through the
+                                Corporate Internet Banking payment module.
+                            </div>
+
+                            <div class="why">
+                                <strong>Why retrieved?</strong><br>
+                                Contains the NEFT and Corporate Internet Banking
+                                concepts from the query.
+                            </div>
+                        </div>
+
+
+                        <div class="chunk" onclick="toggleChunk(this)">
+                            <div class="chunk-meta">
+                                <div class="chunk-name">
+                                    User Administration · Chunk 03
+                                </div>
+                                <div class="score">0.28</div>
+                            </div>
+
+                            <div class="chunk-text">
+                                Corporate Admin users can create and maintain
+                                Corporate Users.
+                            </div>
+
+                            <div class="why">
+                                <strong>Why not highly relevant?</strong><br>
+                                It contains "Corporate User", but has little
+                                semantic relationship with NEFT limits.
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- VECTOR DATABASE -->
+            <section class="card section" id="vector">
+
+                <div class="card-header">
+                    <div class="card-title">④ Vector Database</div>
+                    <div class="card-description">
+                        Imagine each document chunk stored as an embedding.
+                    </div>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="vector">
+
+                        <span>chunk_001 → [0.21,-.43,.77...]</span>
+                        <span>chunk_007 → [.67,.13,-.31...]</span>
+                        <span>chunk_012 → [.81,.52,-.12...]</span>
+                        <span>chunk_021 → [.72,.41,.19...]</span>
+                        <span>chunk_034 → [-.22,.81,.05...]</span>
+
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- GROUNDING -->
+            <section class="card section" id="grounding">
+
+                <div class="card-header">
+                    <div class="card-title">⑥ Grounded Context</div>
+                    <div class="card-description">
+                        This is the information supplied to the LLM as evidence.
+                    </div>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="context-box">
+
+                        <div class="grounded-label">
+                            Grounded evidence
+                        </div>
+
+                        <div class="context-content" id="contextContent">
+
+                            <strong>User Query:</strong><br>
+                            What is the NEFT transaction limit for a corporate user?
+
+                            <br><br>
+
+                            <strong>Retrieved Context:</strong><br>
+                            Corporate users can initiate NEFT transactions
+                            up to ₹10 lakh. Transactions above ₹10 lakh
+                            require approval from an authorized approver.
+
+                            <br><br>
+
+                            Transactions exceeding the configured corporate
+                            user limit are routed to the applicable approval
+                            workflow.
+
+                            <div>
+                                <span class="source">
+                                    CIB FSD v3.2 · Chunk 12
+                                </span>
+
+                                <span class="source">
+                                    Approval Matrix · Chunk 07
+                                </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- LLM -->
+            <section class="card section" id="generation">
+
+                <div class="card-header">
+                    <div class="card-title">⑦ LLM Generation</div>
+                    <div class="card-description">
+                        The LLM turns the retrieved context into a natural-language answer.
+                    </div>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="answer">
+
+                        <div class="answer-label">
+                            Grounded response
+                        </div>
+
+                        <div class="answer-text" id="answerText">
+                            The NEFT transaction limit for a corporate user is
+                            <strong>₹10 lakh</strong>. Transactions above this
+                            limit require approval from an authorized approver.
+                        </div>
+
+                        <div class="citation">
+                            Based on retrieved knowledge · CIB FSD v3.2
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+
+    </div>
+
+
+    <!-- EXPLANATION -->
+    <section class="concept">
+
+        <h3>What you are actually learning</h3>
+
+        <p>
+            <span class="highlight">RAG is not the vector database.</span>
+            The vector database stores searchable representations of knowledge.
+            The retrieval layer finds relevant information. The retrieved
+            information becomes <span class="highlight">grounded context</span>,
+            which is supplied to the LLM. The LLM then generates the final
+            response using that context.
+        </p>
+
+    </section>
+
+</div>
+
+
+<script>
+
+const chunks = [
+    {
+        name: "Transaction Limits · Chunk 12",
+        text: "Corporate users can initiate NEFT transactions up to ₹10 lakh. Transactions above ₹10 lakh require approval from an authorized approver.",
+        score: 0.94,
+        source: "CIB FSD v3.2 · Chunk 12"
+    },
+    {
+        name: "Approval Matrix · Chunk 07",
+        text: "Transactions exceeding the configured corporate user limit are routed to the applicable approval workflow.",
+        score: 0.81,
+        source: "Approval Matrix · Chunk 07"
+    },
+    {
+        name: "Payment Module · Chunk 21",
+        text: "NEFT transactions are available through the Corporate Internet Banking payment module.",
+        score: 0.67,
+        source: "CIB FSD v3.2 · Chunk 21"
+    },
+    {
+        name: "User Administration · Chunk 03",
+        text: "Corporate Admin users can create and maintain Corporate Users.",
+        score: 0.28,
+        source: "Corporate Banking Manual · Chunk 03"
+    },
+    {
+        name: "Login Module · Chunk 02",
+        text: "Corporate users authenticate using configured login credentials and authentication mechanisms.",
+        score: 0.17,
+        source: "CIB FSD v3.2 · Chunk 02"
+    }
+];
+
+
+function setQuery(text) {
+    document.getElementById("query").value = text;
+}
+
+
+function toggleChunk(element) {
+    element.classList.toggle("open");
+}
+
+
+function resetSimulator() {
+
+    document.querySelectorAll(".process-item")
+        .forEach(item => item.classList.remove("visible"));
+
+    document.getElementById("answerText").innerHTML =
+        "The NEFT transaction limit for a corporate user is <strong>₹10 lakh</strong>. Transactions above this limit require approval from an authorized approver.";
+
+    document.getElementById("contextContent").innerHTML = `
+        <strong>User Query:</strong><br>
+        What is the NEFT transaction limit for a corporate user?
+
+        <br><br>
+
+        <strong>Retrieved Context:</strong><br>
+        Corporate users can initiate NEFT transactions
+        up to ₹10 lakh. Transactions above ₹10 lakh
+        require approval from an authorized approver.
+
+        <br><br>
+
+        Transactions exceeding the configured corporate
+        user limit are routed to the applicable approval
+        workflow.
+
+        <div>
+            <span class="source">CIB FSD v3.2 · Chunk 12</span>
+            <span class="source">Approval Matrix · Chunk 07</span>
+        </div>
+    `;
+
+    window.scrollTo({top:0, behavior:"smooth"});
+}
+
+
+function generateVector() {
+
+    const vector = document.getElementById("queryVector");
+
+    const values = [];
+
+    for(let i = 0; i < 8; i++) {
+        const value = (Math.random() * 2 - 1).toFixed(2);
+        values.push(`<span>${value}</span>`);
+    }
+
+    values.push("<span>...</span>");
+
+    vector.innerHTML = values.join("");
+}
+
+
+function renderChunks(topK, threshold) {
+
+    const list = document.getElementById("chunkList");
+
+    const eligible = chunks
+        .filter(c => c.score >= threshold)
+        .sort((a,b) => b.score - a.score)
+        .slice(0, topK);
+
+    const excluded = chunks
+        .filter(c => !eligible.includes(c));
+
+    let html = "";
+
+    eligible.forEach((chunk, index) => {
+
+        html += `
+            <div class="chunk ${index < topK ? "top" : ""}"
+                 onclick="toggleChunk(this)">
+
+                <div class="chunk-meta">
+                    <div class="chunk-name">
+                        ${chunk.name}
+                    </div>
+
+                    <div class="score">
+                        ${chunk.score.toFixed(2)}
+                    </div>
+                </div>
+
+                <div class="chunk-text">
+                    ${chunk.text}
+                </div>
+
+                <div class="why">
+                    <strong>Why retrieved?</strong><br>
+                    The chunk crossed the configured similarity
+                    threshold and ranked among the top ${topK}
+                    results for the query.
+                </div>
+
+            </div>
+        `;
+    });
+
+    excluded.forEach(chunk => {
+
+        html += `
+            <div class="chunk"
+                 onclick="toggleChunk(this)">
+
+                <div class="chunk-meta">
+                    <div class="chunk-name">
+                        ${chunk.name}
+                    </div>
+
+                    <div class="score">
+                        ${chunk.score.toFixed(2)}
+                    </div>
+                </div>
+
+                <div class="chunk-text">
+                    ${chunk.text}
+                </div>
+
+                <div class="why">
+                    <strong>Why not retrieved?</strong><br>
+                    Its similarity score did not meet the current
+                    retrieval configuration.
+                </div>
+
+            </div>
+        `;
+    });
+
+    list.innerHTML = html;
+
+    return eligible;
+}
+
+
+function buildGrounding(query, selected) {
+
+    const context = document.getElementById("contextContent");
+
+    let contextText = `
+        <strong>User Query:</strong><br>
+        ${query}
+
+        <br><br>
+
+        <strong>Retrieved Context:</strong><br>
+    `;
+
+    selected.forEach(chunk => {
+
+        contextText += `
+            ${chunk.text}
+            <br><br>
+        `;
+
+    });
+
+    contextText += `<div>`;
+
+    selected.forEach(chunk => {
+
+        contextText += `
+            <span class="source">${chunk.source}</span>
+        `;
+
+    });
+
+    contextText += `</div>`;
+
+    context.innerHTML = contextText;
+}
+
+
+function generateAnswer(query, selected) {
+
+    const answer = document.getElementById("answerText");
+
+    if(query.toLowerCase().includes("neft")) {
+
+        answer.innerHTML =
+            "Based on the retrieved documents, the NEFT transaction limit for a corporate user is <strong>₹10 lakh</strong>. Transactions above this limit require approval from an authorized approver.";
+
+    }
+    else if(query.toLowerCase().includes("approval")) {
+
+        answer.innerHTML =
+            "Based on the retrieved approval information, transactions exceeding the configured corporate user limit are routed through the applicable approval workflow.";
+
+    }
+    else if(query.toLowerCase().includes("admin")) {
+
+        answer.innerHTML =
+            "The retrieved documentation indicates that Corporate Admin users can create and maintain Corporate Users.";
+
+    }
+    else {
+
+        answer.innerHTML =
+            "The retrieved documents provide relevant information, but this simulator does not have enough domain logic to generate a specific answer for this question.";
+
+    }
+}
+
+
+function runRAG() {
+
+    const query = document.getElementById("query").value.trim();
+
+    if(!query) return;
+
+    const topK =
+        Number(document.getElementById("topK").value);
+
+    const threshold =
+        Number(document.getElementById("threshold").value);
+
+
+    // Reset pipeline animation
+    document.querySelectorAll(".process-item")
+        .forEach(item => item.classList.remove("visible"));
+
+
+    // Step 1
+    setTimeout(() => {
+        document.getElementById("p1")
+            .classList.add("visible");
+    }, 200);
+
+
+    // Step 2
+    setTimeout(() => {
+
+        document.getElementById("p2")
+            .classList.add("visible");
+
+        generateVector();
+
+    }, 650);
+
+
+    // Step 3
+    setTimeout(() => {
+
+        document.getElementById("p3")
+            .classList.add("visible");
+
+    }, 1100);
+
+
+    // Step 4
+    setTimeout(() => {
+
+        document.getElementById("p4")
+            .classList.add("visible");
+
+        const selected =
+            renderChunks(topK, threshold);
+
+        window.currentSelected = selected;
+
+    }, 1550);
+
+
+    // Step 5
+    setTimeout(() => {
+
+        document.getElementById("p5")
+            .classList.add("visible");
+
+        buildGrounding(
+            query,
+            window.currentSelected || []
+        );
+
+    }, 2000);
+
+
+    // Step 6
+    setTimeout(() => {
+
+        document.getElementById("p6")
+            .classList.add("visible");
+
+        generateAnswer(
+            query,
+            window.currentSelected || []
+        );
+
+    }, 2500);
+
+}
+
+
+function focusSection(id) {
+
+    const element = document.getElementById(id);
+
+    if(element) {
+
+        element.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+
+    }
+}
+
+
+// Initial rendering
+renderChunks(3, 0.45);
+
+</script>
+
+</body>
+</html>
+```
